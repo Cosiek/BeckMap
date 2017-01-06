@@ -8,5 +8,8 @@ import (
 
 func main() {
     fmt.Println("Hello!")
-    read_data.Read_data()
+    stops, lines := read_data.Read_data()
+    fmt.Println(stops)
+    fmt.Println(lines)
+    fmt.Println("Done!")
 }
