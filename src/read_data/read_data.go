@@ -4,7 +4,6 @@ import (
     "fmt"
     "log"
     "strconv"
-    "strings"
 
     "third_party/ods"
 
@@ -24,7 +23,8 @@ func Read_data() {
     }
 
     var t string
-    stops := make([]structs.Stop, 0)
+    stops := make(map[int]structs.Stop)
+    lines := make([]structs.Line, 0)
     for _, row := range table {
         if row[0] == "Stops" || row[0] == "Lines"{
             fmt.Println(row[0])
@@ -37,12 +37,22 @@ func Read_data() {
                 x, _ := strconv.Atoi(row[2])
                 y, _ := strconv.Atoi(row[3])
                 stop := structs.Stop{id, row[1], x, y}
-                stops = append(stops, stop)
+                stops[stop.Id] = stop
                 fmt.Println(stop)
             } else {
-                fmt.Println(strings.Join(row, "|"))
+                id, _ := strconv.Atoi(row[0])
+                l := make([]*structs.Stop, 0)
+                for _, val := range row{
+                    v, _ := strconv.Atoi(val)
+                    stop := stops[v]
+                    l = append(l, &stop)
+                }
+
+                line := structs.Line{id, row[1], l}
+                lines = append(lines, line)
             }
         }
     }
     fmt.Println(stops)
+    fmt.Println(lines)
 }
