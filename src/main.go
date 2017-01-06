@@ -4,12 +4,11 @@ import (
     "fmt"
 
     "read_data"
+    "save_svg"
 )
 
 func main() {
     fmt.Println("Hello!")
     stops, lines := read_data.Read_data()
-    fmt.Println(stops)
-    fmt.Println(lines)
-    fmt.Println("Done!")
+    save_svg.Save(stops, lines)
 }
