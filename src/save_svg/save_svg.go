@@ -2,6 +2,7 @@ package save_svg
 
 import (
     "fmt"
+    "math"
     "os"
 
     "third_party/svgo"
@@ -21,25 +22,33 @@ func Save(stops map[int]structs.Stop, lines []structs.Line){
     // calculate canvas width and height
     max_x := 0
     max_y := 0
+    offset_x := math.MaxInt32
+    offset_y := math.MaxInt32
     for _, stop := range stops{
         max_x = simple_math.Max(max_x, stop.X)
+        offset_x = simple_math.Min(offset_x, stop.X)
         max_y = simple_math.Max(max_y, stop.Y)
+        offset_y = simple_math.Min(offset_y, stop.Y)
     }
 
+    offset_x -= 2 * STOP_ICON_RANGE
+    offset_y -= 2 * STOP_ICON_RANGE
+    max_x += 2 * STOP_ICON_RANGE
+    max_y += 2 * STOP_ICON_RANGE
     canvas.Start(max_x, max_y)
-    canvas.Grid(0, 0, max_x, max_y, 10, "stroke:black;opacity:0.05")
+    canvas.Grid(0, 0, max_x, max_y, 2 * STOP_ICON_RANGE, "stroke:black;opacity:0.05")
     for _, line := range lines{
         x_es := make([]int, 0)
         y_s := make([]int, 0)
         for _, stop := range line.Stops{
-            x_es = append(x_es, stop.X)
-            y_s = append(y_s, stop.Y)
+            x_es = append(x_es, stop.X - offset_x)
+            y_s = append(y_s, stop.Y - offset_y)
         }
         canvas.Polyline(x_es, y_s, "stroke:black")
     }
 
     for _, stop := range stops{
-        canvas.Circle(stop.X, stop.Y, STOP_ICON_RANGE)
+        canvas.Circle(stop.X - offset_x, stop.Y - offset_y, STOP_ICON_RANGE)
     }
     canvas.End()
 
