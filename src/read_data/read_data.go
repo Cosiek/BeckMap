@@ -39,8 +39,8 @@ func Read_data() (map[int]structs.Stop, []structs.Line){
             } else {
                 id, _ := strconv.Atoi(row[0])
                 l := make([]*structs.Stop, 0)
-                for _, val := range row{
-                    v, _ := strconv.Atoi(val)
+                for i := 2; i < len(row); i++{
+                    v, _ := strconv.Atoi(row[i])
                     stop := stops[v]
                     l = append(l, &stop)
                 }
