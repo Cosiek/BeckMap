@@ -44,7 +44,7 @@ func Save(stops map[int]structs.Stop, lines []structs.Line){
             x_es = append(x_es, stop.X - offset_x)
             y_s = append(y_s, stop.Y - offset_y)
         }
-        canvas.Polyline(x_es, y_s, "stroke:black")
+        canvas.Polyline(x_es, y_s, "stroke:black;fill:none")
     }
 
     for _, stop := range stops{
