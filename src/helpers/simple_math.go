@@ -13,7 +13,6 @@ func Min(a int, b int) int{
     return b
 }
 
-
 func Distance(x1, x2, y1, y2 int) int{
-    return math.Sqrt(math.Pow(x2 - x1) + math.Pow(y2 - y2))
+    return int(math.Sqrt(math.Pow(float64(x2 - x1), 2) + math.Pow(float64(y2 - y1), 2)))
 }
