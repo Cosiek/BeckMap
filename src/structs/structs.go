@@ -13,3 +13,8 @@ type Line struct {
     Name string
     Stops []*Stop
 }
+
+
+type Grid struct {
+    Cell_size int
+}
