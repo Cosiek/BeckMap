@@ -8,13 +8,13 @@ import (
     "structs"
 )
 
-func Build_grid(stops map[int]structs.Stop)structs.Grid{
+func Build_grid(stops *map[int]structs.Stop)structs.Grid{
     grid := structs.NewGrid()
 
     d := 0
-    for idx1, stop1 := range stops{
+    for idx1, stop1 := range *stops{
         // find minimum distance between any two stops
-        for idx2, stop2 := range stops{
+        for idx2, stop2 := range *stops{
             if idx1 != idx2{
                 d = simple_math.Distance(stop1.X, stop2.X, stop1.Y, stop2.Y)
                 grid.Cell_size = simple_math.Min(grid.Cell_size, d)
