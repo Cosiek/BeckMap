@@ -26,6 +26,8 @@ type Grid struct {
 
     Min_X, Max_X int
     Min_Y, Max_Y int
+
+    Grid [][]*Stop
 }
 
 func NewGrid() Grid{
@@ -36,5 +38,6 @@ func NewGrid() Grid{
     grid.Max_X = -1 * math.MaxInt32
     grid.Min_Y = math.MaxInt32
     grid.Max_Y = -1 * math.MaxInt32
+
     return grid
 }
