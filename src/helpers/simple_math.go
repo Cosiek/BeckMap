@@ -1,4 +1,4 @@
-package simple_math
+package helpers
 
 import "math"
 

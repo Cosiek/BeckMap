@@ -16,16 +16,16 @@ func Build_grid(stops *map[int]structs.Stop)structs.Grid{
         // find minimum distance between any two stops
         for idx2, stop2 := range *stops{
             if idx1 != idx2{
-                d = simple_math.Distance(stop1.X, stop2.X, stop1.Y, stop2.Y)
-                grid.Cell_size = simple_math.Min(grid.Cell_size, d)
+                d = helpers.Distance(stop1.X, stop2.X, stop1.Y, stop2.Y)
+                grid.Cell_size = helpers.Min(grid.Cell_size, d)
             }
         }
 
         // find utmost coordinates
-        grid.Min_X = simple_math.Min(grid.Min_X, stop1.X)
-        grid.Max_X = simple_math.Max(grid.Max_X, stop1.X)
-        grid.Min_Y = simple_math.Min(grid.Min_Y, stop1.Y)
-        grid.Max_Y = simple_math.Max(grid.Max_Y, stop1.Y)
+        grid.Min_X = helpers.Min(grid.Min_X, stop1.X)
+        grid.Max_X = helpers.Max(grid.Max_X, stop1.X)
+        grid.Min_Y = helpers.Min(grid.Min_Y, stop1.Y)
+        grid.Max_Y = helpers.Max(grid.Max_Y, stop1.Y)
     }
 
     // calculate grid size (cell count)

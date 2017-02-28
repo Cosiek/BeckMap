@@ -25,10 +25,10 @@ func Save(stops map[int]structs.Stop, lines []structs.Line){
     offset_x := math.MaxInt32
     offset_y := math.MaxInt32
     for _, stop := range stops{
-        max_x = simple_math.Max(max_x, stop.X)
-        offset_x = simple_math.Min(offset_x, stop.X)
-        max_y = simple_math.Max(max_y, stop.Y)
-        offset_y = simple_math.Min(offset_y, stop.Y)
+        max_x = helpers.Max(max_x, stop.X)
+        offset_x = helpers.Min(offset_x, stop.X)
+        max_y = helpers.Max(max_y, stop.Y)
+        offset_y = helpers.Min(offset_y, stop.Y)
     }
 
     offset_x -= 2 * STOP_ICON_RANGE
