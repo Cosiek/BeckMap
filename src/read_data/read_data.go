@@ -4,7 +4,7 @@ import (
     "log"
     "strconv"
 
-    "third_party/ods"
+	"github.com/ksev/ods"
 
     "structs"
 )
