@@ -5,7 +5,7 @@ import (
     "math"
     "os"
 
-    "third_party/svgo"
+	"github.com/ajstarks/svgo"
 
     "helpers"
     "structs"
