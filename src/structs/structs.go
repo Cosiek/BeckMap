@@ -5,9 +5,14 @@ import (
 )
 
 type Stop struct {
-	Id   int
-	Name string
-	X, Y int // coordinates
+	Id           int
+	Name         string
+	X, Y         int // coordinates
+	GridX, GridY int // grid coordinates
+}
+
+func NewStop(id int, name string, x int, y int) Stop {
+	return Stop{id, name, x, y, -1, -1}
 }
 
 type Line struct {

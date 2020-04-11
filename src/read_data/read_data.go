@@ -34,7 +34,7 @@ func Read_data() (map[int]structs.Stop, []structs.Line) {
 				id, _ := strconv.Atoi(row[0])
 				x, _ := strconv.Atoi(row[2])
 				y, _ := strconv.Atoi(row[3])
-				stop := structs.Stop{id, row[1], x, y}
+				stop := structs.NewStop(id, row[1], x, y)
 				stops[stop.Id] = stop
 			} else {
 				id, _ := strconv.Atoi(row[0])

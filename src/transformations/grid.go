@@ -57,3 +57,65 @@ func AssignStopsToGrid(stops *map[int]structs.Stop, grid *structs.Grid) {
 		grid.Grid[stop_grid_y][stop_grid_x] = &stop
 	}
 }
+
+func GetIndex(stop *structs.Stop, stops *[]*structs.Stop) int {
+	for idx, listItem := range *stops {
+		if *stop == *listItem {
+			return idx
+		}
+	}
+	return -1
+}
+
+func getDirectionDeltas(prev *structs.Stop, curr *structs.Stop) (int, int) {
+	/* Returns grid X and Y deltas based on stops relative positions */
+	return 1, 0
+}
+
+func markStops(linePtr *structs.Line, idx int, step int) {
+	line := *linePtr
+	lastStop := line.Stops[idx]
+
+	for i := idx + step; i > 0 && i < len(line.Stops); i += step {
+		currentStop := line.Stops[i]
+		// if stop is already in grid
+		if currentStop.GridX > -1 {
+			// check if positions need to be adjusted
+		} else {
+			// set stops grid positions with regard to previous one
+			dX, dY := getDirectionDeltas(lastStop, currentStop)
+			currentStop.GridX = lastStop.GridX + dX
+			currentStop.GridY = lastStop.GridY + dY
+		}
+		lastStop = currentStop
+		fmt.Println(lastStop.Name, lastStop.GridX, lastStop.GridY)
+	}
+}
+
+func BuildGrid(stops_ *map[int]structs.Stop, lines_ *[]structs.Line) {
+	//stops := *stops_
+	lines := *lines_
+	var line structs.Line
+	// set first stop at 0, 0 grid position
+	stop := lines[0].Stops[0]
+	stop.GridX = 0
+	stop.GridY = 0
+	for {
+		// select a line that has a stop that is already in the grid
+		idx := 0
+		for _, l := range lines {
+			idx = GetIndex(stop, &l.Stops)
+			if idx > -1 {
+				line = l
+				break
+			}
+		}
+		fmt.Println(line)
+		fmt.Println(idx)
+		// iterate up starting from that common stop
+		markStops(&line, idx, 1)
+		// return to common stop and iterate the other way
+		markStops(&line, idx, -1)
+		break
+	}
+}
