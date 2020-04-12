@@ -9,10 +9,11 @@ type Stop struct {
 	Name         string
 	X, Y         int // coordinates
 	GridX, GridY int // grid coordinates
+	Marked       bool
 }
 
 func NewStop(id int, name string, x int, y int) Stop {
-	return Stop{id, name, x, y, -1, -1}
+	return Stop{id, name, x, y, -1, -1, false}
 }
 
 type Line struct {

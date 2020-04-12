@@ -69,26 +69,55 @@ func GetIndex(stop *structs.Stop, stops *[]*structs.Stop) int {
 
 func getDirectionDeltas(prev *structs.Stop, curr *structs.Stop) (int, int) {
 	/* Returns grid X and Y deltas based on stops relative positions */
-	return 1, 0
+	angle := math.Atan2(float64(curr.Y-prev.Y), float64(curr.X-prev.X))
+	var x, y int
+
+	if angle >= 0 {
+		if angle < math.Pi/8 {
+			y, x = 0, 1
+		} else if angle < math.Pi*3/8 {
+			y, x = 1, 1
+		} else if angle < math.Pi*5/8 {
+			y, x = 1, 0
+		} else if angle < math.Pi*7/8 {
+			y, x = 1, -1
+		} else {
+			y, x = 0, -1
+		}
+	} else {
+		if angle > -math.Pi/8 {
+			y, x = 0, 1
+		} else if angle > -math.Pi*3/8 {
+			y, x = -1, 1
+		} else if angle > -math.Pi*5/8 {
+			y, x = -1, 0
+		} else if angle > -math.Pi*7/8 {
+			y, x = -1, -1
+		} else {
+			y, x = 0, -1
+		}
+	}
+	return y, x
 }
 
 func markStops(linePtr *structs.Line, idx int, step int) {
 	line := *linePtr
 	lastStop := line.Stops[idx]
+	lastStop.GridY, lastStop.GridY = 0, 0
 
 	for i := idx + step; i > 0 && i < len(line.Stops); i += step {
 		currentStop := line.Stops[i]
+		dY, dX := getDirectionDeltas(lastStop, currentStop)
 		// if stop is already in grid
-		if currentStop.GridX > -1 {
+		if currentStop.Marked {
 			// check if positions need to be adjusted
 		} else {
 			// set stops grid positions with regard to previous one
-			dX, dY := getDirectionDeltas(lastStop, currentStop)
 			currentStop.GridX = lastStop.GridX + dX
 			currentStop.GridY = lastStop.GridY + dY
+			currentStop.Marked = true
 		}
 		lastStop = currentStop
-		fmt.Println(lastStop.Name, lastStop.GridX, lastStop.GridY)
 	}
 }
 
@@ -110,8 +139,6 @@ func BuildGrid(stops_ *map[int]structs.Stop, lines_ *[]structs.Line) {
 				break
 			}
 		}
-		fmt.Println(line)
-		fmt.Println(idx)
 		// iterate up starting from that common stop
 		markStops(&line, idx, 1)
 		// return to common stop and iterate the other way
