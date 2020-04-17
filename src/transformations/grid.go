@@ -58,9 +58,11 @@ func AssignStopsToGrid(stops *map[int]structs.Stop, grid *structs.Grid) {
 	}
 }
 
-func GetIndex(stop *structs.Stop, stops *[]*structs.Stop) int {
-	for idx, listItem := range *stops {
-		if *stop == *listItem {
+func GetCommonStopIdx(visitedStopsPtr *map[structs.Stop]bool, linePtr *structs.Line) int {
+	visitedStops := *visitedStopsPtr
+	for idx, listItemPtr := range linePtr.Stops {
+		_, ok := visitedStops[*listItemPtr]
+		if ok {
 			return idx
 		}
 	}
@@ -100,49 +102,88 @@ func getDirectionDeltas(prev *structs.Stop, curr *structs.Stop) (int, int) {
 	return y, x
 }
 
-func markStops(linePtr *structs.Line, idx int, step int) {
+func adjustStopsPositions(visitedStops map[structs.Stop]bool, currY, currX, dY, dX int) {
+	for stop, _ := range visitedStops {
+		if stop.GridY >= currY {
+			stop.GridY += dY
+		}
+		if stop.GridX >= currX {
+			stop.GridX += dX
+		}
+	}
+}
+
+func markStops(linePtr *structs.Line, visitedStops map[structs.Stop]bool, idx int, step int) {
 	line := *linePtr
 	lastStop := line.Stops[idx]
-	lastStop.GridY, lastStop.GridY = 0, 0
 
 	for i := idx + step; i > 0 && i < len(line.Stops); i += step {
 		currentStop := line.Stops[i]
 		dY, dX := getDirectionDeltas(lastStop, currentStop)
 		// if stop is already in grid
-		if currentStop.Marked {
-			// check if positions need to be adjusted
+		if visitedStops[*currentStop] {
+			// check if positions need to be adjusted on Y axis
+			if currentStop.GridY-lastStop.GridY*dY < 0 {
+				dY = int(math.Abs(float64(currentStop.GridY - lastStop.GridY + dY)))
+			} else {
+				dY = 0
+			}
+
+			// check if positions need to be adjusted on X axis
+			if currentStop.GridX-lastStop.GridX*dX < 0 {
+				dX = int(math.Abs(float64(currentStop.GridX - lastStop.GridX + dX)))
+			} else {
+				dX = 0
+			}
+
+			adjustStopsPositions(visitedStops, currentStop.GridY, currentStop.GridX, dY, dX)
 		} else {
 			// set stops grid positions with regard to previous one
 			currentStop.GridX = lastStop.GridX + dX
 			currentStop.GridY = lastStop.GridY + dY
-			currentStop.Marked = true
+			visitedStops[*currentStop] = true
 		}
 		lastStop = currentStop
 	}
 }
 
-func BuildGrid(stops_ *map[int]structs.Stop, lines_ *[]structs.Line) {
-	//stops := *stops_
+func BuildGrid(stopsPtr *map[int]structs.Stop, lines_ *[]structs.Line) {
 	lines := *lines_
 	var line structs.Line
+	// prepare mapings
+	var visitedStops = make(map[structs.Stop]bool)
+	var markedLines = make(map[int]bool)
 	// set first stop at 0, 0 grid position
 	stop := lines[0].Stops[0]
 	stop.GridX = 0
 	stop.GridY = 0
+	visitedStops[*stop] = true
+
 	for {
 		// select a line that has a stop that is already in the grid
-		idx := 0
+		idx := -1
 		for _, l := range lines {
-			idx = GetIndex(stop, &l.Stops)
+			if markedLines[l.Id] {
+				continue
+			}
+			// mark this as a selected one and continue...
+			line = l
+			// to check if this one has any stops that have been already marked
+			idx = GetCommonStopIdx(&visitedStops, &l)
 			if idx > -1 {
-				line = l
 				break
 			}
 		}
+		// if no such line was found, then its time to leave
+		// NOTE: this will fail if any of the lines is detached from the rest
+		if idx == -1 {
+			break
+		}
 		// iterate up starting from that common stop
-		markStops(&line, idx, 1)
+		markStops(&line, visitedStops, idx, 1)
 		// return to common stop and iterate the other way
-		markStops(&line, idx, -1)
-		break
+		markStops(&line, visitedStops, idx, -1)
+
+		markedLines[line.Id] = true
 	}
 }
