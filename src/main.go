@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"helpers"
+	//"helpers"
 	"read_data"
 	"save_svg"
 	"transformations"
@@ -12,10 +12,7 @@ import (
 func main() {
 	fmt.Println("Hello!")
 	stops, lines := read_data.Read_data()
-	grid := grid.Build_grid(&stops)
-	//fmt.Println(grid)
-	fmt.Println("- - - -")
-	helpers.PrintGrid(&grid)
-	fmt.Println("- - - -")
-	save_svg.Save(stops, lines)
+	grid.BuildGrid(&stops, &lines)
+	save_svg.SaveMap(stops, lines)
+	save_svg.SaveGrid(&stops, &lines)
 }

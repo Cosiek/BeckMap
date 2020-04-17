@@ -13,7 +13,7 @@ import (
 
 var STOP_ICON_RANGE int = 5
 
-func Save(stops map[int]structs.Stop, lines []structs.Line) {
+func SaveMap(stops map[int]*structs.Stop, lines []structs.Line) {
 	// start new canvas
 	f, err := os.Create("export.svg")
 	if err != nil {
@@ -37,8 +37,10 @@ func Save(stops map[int]structs.Stop, lines []structs.Line) {
 	offset_y -= 2 * STOP_ICON_RANGE
 	max_x += 2 * STOP_ICON_RANGE
 	max_y += 2 * STOP_ICON_RANGE
+	// draw grid
 	canvas.Start(max_x, max_y)
 	canvas.Grid(0, 0, max_x, max_y, 2*STOP_ICON_RANGE, "stroke:black;opacity:0.05")
+	// draw lines
 	for _, line := range lines {
 		x_es := make([]int, 0)
 		y_s := make([]int, 0)
@@ -48,11 +50,14 @@ func Save(stops map[int]structs.Stop, lines []structs.Line) {
 		}
 		canvas.Polyline(x_es, y_s, "stroke:black;fill:none")
 	}
-
+	// draw stops
 	for _, stop := range stops {
 		canvas.Circle(stop.X-offset_x, stop.Y-offset_y, STOP_ICON_RANGE)
 	}
+	// finish
 	canvas.End()
+	fmt.Println("saved.")
+}
 
 	fmt.Println("saved.")
 }

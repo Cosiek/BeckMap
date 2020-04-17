@@ -147,7 +147,7 @@ func markStops(linePtr *structs.Line, visitedStops map[structs.Stop]bool, idx in
 	}
 }
 
-func BuildGrid(stopsPtr *map[int]structs.Stop, lines_ *[]structs.Line) {
+func BuildGrid(stopsPtr *map[int]*structs.Stop, lines_ *[]structs.Line) {
 	lines := *lines_
 	var line structs.Line
 	// prepare mapings
