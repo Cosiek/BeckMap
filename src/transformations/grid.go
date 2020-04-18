@@ -117,7 +117,7 @@ func markStops(linePtr *structs.Line, visitedStops map[structs.Stop]bool, idx in
 	line := *linePtr
 	lastStop := line.Stops[idx]
 
-	for i := idx + step; i > 0 && i < len(line.Stops); i += step {
+	for i := idx + step; i >= 0 && i < len(line.Stops); i += step {
 		currentStop := line.Stops[i]
 		dY, dX := getDirectionDeltas(lastStop, currentStop)
 		// if stop is already in grid
