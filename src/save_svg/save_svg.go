@@ -58,7 +58,7 @@ func SaveMap(stops map[int]*structs.Stop, lines []structs.Line) {
 	}
 	// finish
 	canvas.End()
-	fmt.Println("saved.")
+	fmt.Println("Map saved.")
 }
 
 func SaveGrid(stopsPtr *map[int]*structs.Stop, linesPtr *[]structs.Line) {
@@ -119,12 +119,11 @@ func SaveGrid(stopsPtr *map[int]*structs.Stop, linesPtr *[]structs.Line) {
 	}
 	// draw stops
 	for _, stop := range stops {
-		fmt.Println(stop.Name, stop.GridY, stop.GridY)
 		canvas.Circle(stop.GridX*10-offset_x, stop.GridY*10-offset_y, 3)
 		canvas.Text(stop.GridX*10-offset_x, stop.GridY*10-offset_y, strconv.Itoa(stop.Id), "font:8px serif;stroke:green;fill:none")
 	}
 	// finish
 	canvas.End()
-	fmt.Println("saved.")
+	fmt.Println("Grid saved.")
 
 }
