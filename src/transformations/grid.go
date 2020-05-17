@@ -41,27 +41,7 @@ func getDirectionDeltas(prev *structs.Stop, curr *structs.Stop) (int, int) {
 	return y, x
 }
 
-func ApplyGrid(stopsPtr *map[int]*structs.Stop, lines_ *[]structs.Line) {
-	stops := *stopsPtr
-	// create slices of stops that will be ordered
-	byX := make([]*structs.Stop, len(stops))
-	byY := make([]*structs.Stop, len(stops))
-	idx := 0
-	for _, val := range stops {
-		byX[idx] = val
-		byY[idx] = val
-		idx += 1
-	}
-	// apply sorting
-	sort.Slice(byX, func(p, q int) bool { return byX[p].X < byX[q].X })
-	sort.Slice(byY, func(p, q int) bool { return byY[p].Y < byY[q].Y })
-	// update stops GridX and GridY attrs, basing on their position in table
-	for idx, stopPtr := range byX {
-		stopPtr.GridX = idx
-	}
-	for idx, stopPtr := range byY {
-		stopPtr.GridY = idx
-	}
+func MoveLeft(byX []*structs.Stop) {
 	// try pushing stops to the left, if they are in vertical relation to all
 	// stops in previous column
 	for idx, stopPtr := range byX {
@@ -91,7 +71,9 @@ func ApplyGrid(stopsPtr *map[int]*structs.Stop, lines_ *[]structs.Line) {
 			stopPtr.GridX = refGridX + 1
 		}
 	}
+}
 
+func MoveUp(byY []*structs.Stop) {
 	// try pushing stops up, if they are in horizontal relation to all
 	// stops in previous row
 	for idx, stopPtr := range byY {
@@ -121,4 +103,30 @@ func ApplyGrid(stopsPtr *map[int]*structs.Stop, lines_ *[]structs.Line) {
 			stopPtr.GridY = refGridY + 1
 		}
 	}
+}
+
+func ApplyGrid(stopsPtr *map[int]*structs.Stop, lines_ *[]structs.Line) {
+	stops := *stopsPtr
+	// create slices of stops that will be ordered
+	byX := make([]*structs.Stop, len(stops))
+	byY := make([]*structs.Stop, len(stops))
+	idx := 0
+	for _, val := range stops {
+		byX[idx] = val
+		byY[idx] = val
+		idx += 1
+	}
+	// apply sorting
+	sort.Slice(byX, func(p, q int) bool { return byX[p].X < byX[q].X })
+	sort.Slice(byY, func(p, q int) bool { return byY[p].Y < byY[q].Y })
+	// update stops GridX and GridY attrs, basing on their position in table
+	for idx, stopPtr := range byX {
+		stopPtr.GridX = idx
+	}
+	for idx, stopPtr := range byY {
+		stopPtr.GridY = idx
+	}
+	// condense grid by moving stops to rows/columns with others
+	MoveLeft(byX)
+	MoveUp(byY)
 }
