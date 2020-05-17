@@ -12,8 +12,7 @@ import (
 func main() {
 	fmt.Println("Hello!")
 	stops, lines := read_data.Read_data()
-	//grid.BuildGrid(&stops, &lines)
-	grid.AnotherApproach(&stops, &lines)
+	grid.ApplyGrid(&stops, &lines)
 	save_svg.SaveMap(stops, lines)
 	save_svg.SaveGrid(&stops, &lines)
 }
