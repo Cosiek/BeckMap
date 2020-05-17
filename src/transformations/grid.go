@@ -3,6 +3,7 @@ package grid
 import (
 	"fmt"
 	"math"
+	"sort"
 
 	"helpers"
 	"structs"
@@ -104,6 +105,7 @@ func getDirectionDeltas(prev *structs.Stop, curr *structs.Stop) (int, int) {
 
 func adjustStopsPositions(visitedStops *map[*structs.Stop]bool, currY, currX, dY, dX int) {
 	for stop, _ := range *visitedStops {
+		fmt.Println("\t", stop.Name, stop.GridX, currX, dX, stop.GridX >= currX, stop.GridY, currY, dY, stop.GridY >= currY)
 		if stop.GridY >= currY {
 			stop.GridY += dY
 		}
@@ -136,7 +138,7 @@ func markStops(linePtr *structs.Line, visitedStopsPtr *map[*structs.Stop]bool, i
 			} else {
 				dX = 0
 			}
-
+			fmt.Println(lastStop.Id, " -> ", currentStop.Id)
 			adjustStopsPositions(visitedStopsPtr, currentStop.GridY, currentStop.GridX, dY, dX)
 		} else {
 			// set stops grid positions with regard to previous one
@@ -186,5 +188,90 @@ func BuildGrid(stopsPtr *map[int]*structs.Stop, lines_ *[]structs.Line) {
 		markStops(&line, &visitedStops, idx, -1)
 
 		markedLines[line.Id] = true
+	}
+	for _, v := range *stopsPtr {
+		fmt.Println(v.Name, v.GridX, v.GridY)
+	}
+}
+
+func AnotherApproach(stopsPtr *map[int]*structs.Stop, lines_ *[]structs.Line) {
+	stops := *stopsPtr
+	// create slices of stops that will be ordered
+	byX := make([]*structs.Stop, len(stops))
+	byY := make([]*structs.Stop, len(stops))
+	idx := 0
+	for _, val := range stops {
+		byX[idx] = val
+		byY[idx] = val
+		idx += 1
+	}
+	// apply sorting
+	sort.Slice(byX, func(p, q int) bool { return byX[p].X < byX[q].X })
+	sort.Slice(byY, func(p, q int) bool { return byY[p].Y < byY[q].Y })
+	// update stops GridX and GridY attrs, basing on their position in table
+	for idx, stopPtr := range byX {
+		stopPtr.GridX = idx
+	}
+	for idx, stopPtr := range byY {
+		stopPtr.GridY = idx
+	}
+	// try pushing stops to the left, if they are in vertical relation to all
+	// stops in previous column
+	for idx, stopPtr := range byX {
+		// first element can't be moved left
+		if idx == 0 {
+			continue
+		}
+		// get gridX of previous element
+		refGridX := byX[idx-1].GridX
+		canMoveLeft := true
+		// iterate stops in previous column
+		for idx2 := idx - 1; idx2 >= 0; idx2-- {
+			// breake if reaching more then one column to the left
+			if byX[idx2].GridX != refGridX {
+				break
+			}
+			// check stops relative position
+			_, dx := getDirectionDeltas(byX[idx], byX[idx2])
+			if dx != 0 {
+				canMoveLeft = false
+				break
+			}
+		}
+		if canMoveLeft {
+			stopPtr.GridX = refGridX
+		} else {
+			stopPtr.GridX = refGridX + 1
+		}
+	}
+
+	// try pushing stops up, if they are in horizontal relation to all
+	// stops in previous row
+	for idx, stopPtr := range byY {
+		// first element can't be moved up
+		if idx == 0 {
+			continue
+		}
+		// get gridX of previous element
+		refGridY := byY[idx-1].GridY
+		canMoveUp := true
+		// iterate stops in previous row
+		for idx2 := idx - 1; idx2 >= 0; idx2-- {
+			// breake if reaching more then one column up
+			if byY[idx2].GridY != refGridY {
+				break
+			}
+			// check stops relative position
+			dy, _ := getDirectionDeltas(byY[idx], byY[idx2])
+			if dy != 0 {
+				canMoveUp = false
+				break
+			}
+		}
+		if canMoveUp {
+			stopPtr.GridY = refGridY
+		} else {
+			stopPtr.GridY = refGridY + 1
+		}
 	}
 }
