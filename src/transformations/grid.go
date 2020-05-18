@@ -105,6 +105,64 @@ func MoveUp(byY []*structs.Stop) {
 	}
 }
 
+func MoveRight(byX []*structs.Stop) {
+	// get right-most GridX
+	idx := len(byX) - 1
+	refGridX := byX[idx].GridX
+	// get index of last stop from second to last column
+	for byX[idx].GridX == refGridX {
+		idx--
+	}
+	// iterate stops from right to left
+	for idx := len(byX) - 1; idx >= 0; idx-- {
+		// stops in last column can't be moved
+		if byX[idx].GridX == refGridX {
+			continue
+		}
+		// if there is another stop in place where stop would be moved, then
+		// there is nothing that can be done.
+		for idx2 := idx + 1; idx2 < len(byX); idx2++ {
+			if byX[idx2].GridX == byX[idx].GridX+1 && byX[idx2].GridY == byX[idx].GridY {
+				break // ŹLE - trzeba się wybić z zewnętrznej petli
+			} else if byX[idx2].GridX > byX[idx].GridX+1 {
+				// no need to check further then one column to the right
+				break
+			}
+		}
+		// calculate avrage X of this column (except current stop) and
+		// avrage X of next colunm
+		var thisColSum, thisColCount float64 = 0, 0
+		var nextColSum, nextColCount float64 = 0, 0
+		for idx2 := 0; idx2 < len(byX); idx2++ {
+			// skip stops from previous columns
+			if byX[idx].GridX > byX[idx2].GridX {
+				continue
+			}
+			// skip current stop
+			if idx == idx2 {
+				continue
+			}
+			if byX[idx].GridX == byX[idx2].GridX {
+				// update sum and count for this column
+				thisColSum += float64(byX[idx2].X)
+				thisColCount++
+			} else if byX[idx2].GridX == byX[idx].GridX+1 {
+				// update sum and count for next column
+				nextColSum += float64(byX[idx2].X)
+				nextColCount++
+			} else {
+				break
+			}
+		}
+		// compare these avrages with current stops X
+		dToThisAvg := float64(byX[idx].X) - thisColSum/thisColCount
+		dFromNextAvg := nextColSum/nextColCount - float64(byX[idx].X)
+		if dToThisAvg > 0 && dFromNextAvg < dToThisAvg {
+			byX[idx].GridX++
+		}
+	}
+}
+
 func ApplyGrid(stopsPtr *map[int]*structs.Stop, lines_ *[]structs.Line) {
 	stops := *stopsPtr
 	// create slices of stops that will be ordered
@@ -129,4 +187,5 @@ func ApplyGrid(stopsPtr *map[int]*structs.Stop, lines_ *[]structs.Line) {
 	// condense grid by moving stops to rows/columns with others
 	MoveLeft(byX)
 	MoveUp(byY)
+	MoveRight(byX)
 }
