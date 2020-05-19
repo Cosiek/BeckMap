@@ -81,7 +81,7 @@ func MoveUp(byY []*structs.Stop) {
 		if idx == 0 {
 			continue
 		}
-		// get gridX of previous element
+		// get gridY of previous element
 		refGridY := byY[idx-1].GridY
 		canMoveUp := true
 		// iterate stops in previous row
@@ -121,13 +121,18 @@ func MoveRight(byX []*structs.Stop) {
 		}
 		// if there is another stop in place where stop would be moved, then
 		// there is nothing that can be done.
+		break_cointinue := false
 		for idx2 := idx + 1; idx2 < len(byX); idx2++ {
 			if byX[idx2].GridX == byX[idx].GridX+1 && byX[idx2].GridY == byX[idx].GridY {
-				break // ŹLE - trzeba się wybić z zewnętrznej petli
+				break_cointinue = true
+				break
 			} else if byX[idx2].GridX > byX[idx].GridX+1 {
 				// no need to check further then one column to the right
 				break
 			}
+		}
+		if break_cointinue {
+			continue
 		}
 		// calculate avrage X of this column (except current stop) and
 		// avrage X of next colunm
@@ -179,13 +184,18 @@ func MoveDown(byY []*structs.Stop) {
 		}
 		// if there is another stop in place where stop would be moved, then
 		// there is nothing that can be done.
+		break_cointinue := false
 		for idx2 := idx + 1; idx2 < len(byY); idx2++ {
 			if byY[idx2].GridY == byY[idx].GridY+1 && byY[idx2].GridX == byY[idx].GridX {
-				break // TODO - trzeba się wybić z zewnętrznej petli
+				break_cointinue = true
+				break
 			} else if byY[idx2].GridY > byY[idx].GridY+1 {
 				// no need to check further then one row up
 				break
 			}
+		}
+		if break_cointinue {
+			continue
 		}
 		// calculate avrage Y of this row (except current stop) and
 		// avrage Y of next row
