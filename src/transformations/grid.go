@@ -163,6 +163,64 @@ func MoveRight(byX []*structs.Stop) {
 	}
 }
 
+func MoveDown(byY []*structs.Stop) {
+	// get down-most GridY
+	idx := len(byY) - 1
+	refGridY := byY[idx].GridY
+	// get index of last stop from second to last row
+	for byY[idx].GridY == refGridY {
+		idx--
+	}
+	// iterate stops from bottom to top
+	for idx := len(byY) - 1; idx >= 0; idx-- {
+		// stops in last row can't be moved
+		if byY[idx].GridY == refGridY {
+			continue
+		}
+		// if there is another stop in place where stop would be moved, then
+		// there is nothing that can be done.
+		for idx2 := idx + 1; idx2 < len(byY); idx2++ {
+			if byY[idx2].GridY == byY[idx].GridY+1 && byY[idx2].GridX == byY[idx].GridX {
+				break // TODO - trzeba się wybić z zewnętrznej petli
+			} else if byY[idx2].GridY > byY[idx].GridY+1 {
+				// no need to check further then one row up
+				break
+			}
+		}
+		// calculate avrage Y of this row (except current stop) and
+		// avrage Y of next row
+		var thisRowSum, thisRowCount float64 = 0, 0
+		var nextRowSum, nextRowCount float64 = 0, 0
+		for idx2 := 0; idx2 < len(byY); idx2++ {
+			// skip stops from previous rows
+			if byY[idx].GridY > byY[idx2].GridY {
+				continue
+			}
+			// skip current stop
+			if idx == idx2 {
+				continue
+			}
+			if byY[idx].GridY == byY[idx2].GridY {
+				// update sum and count for this row
+				thisRowSum += float64(byY[idx2].Y)
+				thisRowCount++
+			} else if byY[idx2].GridY == byY[idx].GridY+1 {
+				// update sum and count for next row
+				nextRowSum += float64(byY[idx2].Y)
+				nextRowCount++
+			} else {
+				break
+			}
+		}
+		// compare these avrages with current stops Y
+		dToThisAvg := float64(byY[idx].Y) - thisRowSum/thisRowCount
+		dFromNextAvg := nextRowSum/nextRowCount - float64(byY[idx].Y)
+		if dToThisAvg > 0 && dFromNextAvg < dToThisAvg {
+			byY[idx].GridY++
+		}
+	}
+}
+
 func ApplyGrid(stopsPtr *map[int]*structs.Stop, lines_ *[]structs.Line) {
 	stops := *stopsPtr
 	// create slices of stops that will be ordered
@@ -188,4 +246,6 @@ func ApplyGrid(stopsPtr *map[int]*structs.Stop, lines_ *[]structs.Line) {
 	MoveLeft(byX)
 	MoveUp(byY)
 	MoveRight(byX)
+	MoveDown(byY)
+	// TODO: Get rid of empty rows/columns
 }
