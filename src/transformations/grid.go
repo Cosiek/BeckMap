@@ -107,7 +107,8 @@ func MoveUp(byY []*structs.Stop) {
 
 func MoveRight(byX []*structs.Stop) {
 	// get right-most GridX
-	idx := len(byX) - 1
+	byXLen := len(byX)
+	idx := byXLen - 1
 	refGridX := byX[idx].GridX
 	// get index of last stop from second to last column
 	for byX[idx].GridX == refGridX {
@@ -116,8 +117,12 @@ func MoveRight(byX []*structs.Stop) {
 	// iterate stops from right to left
 	for idx := len(byX) - 1; idx >= 0; idx-- {
 		// stops in last column can't be moved
-		if byX[idx].GridX == refGridX {
+		if byX[idx].GridX == byX[byXLen-1].GridX {
 			continue
+		}
+		// update reference grid x (column to match x to)
+		if byX[idx].GridX != byX[idx+1].GridX {
+			refGridX = byX[idx+1].GridX
 		}
 		// if there is another stop in place where stop would be moved, then
 		// there is nothing that can be done.
@@ -163,14 +168,18 @@ func MoveRight(byX []*structs.Stop) {
 		dToThisAvg := float64(byX[idx].X) - thisColSum/thisColCount
 		dFromNextAvg := nextColSum/nextColCount - float64(byX[idx].X)
 		if dToThisAvg > 0 && dFromNextAvg < dToThisAvg {
-			byX[idx].GridX++
+			byX[idx].GridX = refGridX
+		} else {
+			// Prevent empty columns
+			byX[idx].GridX = refGridX - 1
 		}
 	}
 }
 
 func MoveDown(byY []*structs.Stop) {
 	// get down-most GridY
-	idx := len(byY) - 1
+	byYLen := len(byY)
+	idx := byYLen - 1
 	refGridY := byY[idx].GridY
 	// get index of last stop from second to last row
 	for byY[idx].GridY == refGridY {
@@ -179,8 +188,12 @@ func MoveDown(byY []*structs.Stop) {
 	// iterate stops from bottom to top
 	for idx := len(byY) - 1; idx >= 0; idx-- {
 		// stops in last row can't be moved
-		if byY[idx].GridY == refGridY {
+		if byY[idx].GridY == byY[byYLen-1].GridY {
 			continue
+		}
+		// update reference grid y (row to match y to)
+		if byY[idx].GridY != byY[idx+1].GridY {
+			refGridY = byY[idx+1].GridY
 		}
 		// if there is another stop in place where stop would be moved, then
 		// there is nothing that can be done.
@@ -226,7 +239,10 @@ func MoveDown(byY []*structs.Stop) {
 		dToThisAvg := float64(byY[idx].Y) - thisRowSum/thisRowCount
 		dFromNextAvg := nextRowSum/nextRowCount - float64(byY[idx].Y)
 		if dToThisAvg > 0 && dFromNextAvg < dToThisAvg {
-			byY[idx].GridY++
+			byY[idx].GridY = refGridY
+		} else {
+			// prevent empty rows
+			byY[idx].GridY = refGridY - 1
 		}
 	}
 }
@@ -257,5 +273,4 @@ func ApplyGrid(stopsPtr *map[int]*structs.Stop, lines_ *[]structs.Line) {
 	MoveUp(byY)
 	MoveRight(byX)
 	MoveDown(byY)
-	// TODO: Get rid of empty rows/columns
 }
